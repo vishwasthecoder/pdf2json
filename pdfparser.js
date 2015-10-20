@@ -30,6 +30,7 @@ var PDFParser = (function () {
         this.context = context;
 
         this.pdfFilePath = null; //current PDF file to load and parse, null means loading/parsing not started
+	this.password = null;
         this.data = null; //if file read success, data is PDF content; if failed, data is "err" object
         this.PDFJS = new PDFJS(needRawText);
         this.parsePropCount = 0;
@@ -65,7 +66,7 @@ var PDFParser = (function () {
         this.PDFJS.on("pdfjs_parseDataReady", _.bind(_onPDFJSParseDataReady, this));
         this.PDFJS.on("pdfjs_parseDataError", _.bind(_onPDFJSParserDataError, this));
 
-        this.PDFJS.parsePDFData(buffer || _binBuffer[this.pdfFilePath]);
+        this.PDFJS.parsePDFData(buffer || _binBuffer[this.pdfFilePath],this.password);
     };
 
     var processBinaryCache = function() {
@@ -104,11 +105,12 @@ var PDFParser = (function () {
      }, 250);
 
     // public (every instance will share the same method, but has no access to private fields defined in constructor)
-    cls.prototype.loadPDF = function (pdfFilePath, verbosity) {
+    cls.prototype.loadPDF = function (pdfFilePath, verbosity, password) {
         nodeUtil.verbosity(verbosity);
         nodeUtil.p2jinfo("about to load PDF file " + pdfFilePath);
 
         this.pdfFilePath = pdfFilePath;
+	this.password = password
         if (this.processFieldInfoXML) {
             this.PDFJS.tryLoadFieldInfoXML(pdfFilePath);
         }
